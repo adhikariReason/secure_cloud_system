@@ -1,0 +1,3 @@
+nginx/certs/
+__pycache__/
+*.pyc

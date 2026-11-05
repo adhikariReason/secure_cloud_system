@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Upload</h2>
+<form method="post" action="{% url 'upload' %}" enctype="multipart/form-data">
+  {% csrf_token %}<input type="file" name="file"> <button>Upload</button>
+</form>
+
+<h2>My files</h2>
+<table border="1" cellpadding="4">
+  <tr><th>Name</th><th>Size (bytes)</th><th>Uploaded</th><th></th></tr>
+  {% for f in files %}
+  <tr>
+    <td>{{ f.name }}</td><td>{{ f.size }}</td><td>{{ f.uploaded_at }}</td>
+    <td>
+      <a href="{% url 'download' f.id %}">Download</a>
+      <form method="post" action="{% url 'delete' f.id %}" style="display:inline">
+        {% csrf_token %}<button>Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4">No files yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Secure Cloud</title></head>
+<body>
+  <h1>Secure Cloud</h1>
+  {% if user.is_authenticated %}
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %} Logged in as <b>{{ user.username }}</b> <button>Log out</button>
+    </form>
+  {% endif %}
+  {% for m in messages %}<p><b>{{ m }}</b></p>{% endfor %}
+  <hr>
+  {% block content %}{% endblock %}
+</body>
+</html>
