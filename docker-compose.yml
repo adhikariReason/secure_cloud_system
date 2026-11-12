@@ -2,6 +2,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     container_name: mynginx
+    restart: unless-stopped
     ports:                        # the ONLY ports open to the outside
       - "80:80"
       - "443:443"
@@ -14,6 +15,7 @@ services:
   web:
     build: ./app
     container_name: django-web
+    restart: unless-stopped
     expose:
       - "8000"                    # reachable by nginx only, not published
     volumes:
