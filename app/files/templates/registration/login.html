@@ -1,6 +1,18 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Log in</h2>
-<form method="post">{% csrf_token %}{{ form.as_p }}<button>Log in</button></form>
-<p>No account? <a href="{% url 'register' %}">Register</a></p>
+{% block title %}Sign in · Secure Cloud{% endblock %}
+{% block body %}
+<div class="auth"><div class="auth-box">
+  <div class="auth-brand"><span class="mark"><svg width="14" height="14" style="color:#fff"><use href="#i-lock"/></svg></span>Secure Cloud</div>
+  {% include "messages.html" %}
+  <div class="panel panel-pad">
+    <h2 style="font-size:16px">Sign in</h2>
+    {% if form.non_field_errors %}<div class="alert a-bad"><svg width="16" height="16"><use href="#i-alert"/></svg><div>{{ form.non_field_errors.0 }}</div></div>{% endif %}
+    <form method="post">{% csrf_token %}
+      {% include "fields.html" %}
+      <button class="btn btn-primary" style="width:100%;justify-content:center;height:36px">Sign in</button>
+    </form>
+    <p class="small muted" style="margin:14px 0 0">Your password also unlocks your private key. It is never stored.</p>
+  </div>
+  <div class="auth-foot">No account? <a href="{% url 'register' %}">Create one</a></div>
+</div></div>
 {% endblock %}

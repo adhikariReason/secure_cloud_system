@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load sc %}
+{% block title %}Shared with me · Secure Cloud{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Shared with me</h1>
+  <div class="muted small">Files other users shared with you. Your copy of each file key is encrypted with your public key.</div></div></div>
+<div class="panel table-wrap">
+{% if shares %}
+<table>
+  <thead><tr><th>Name</th><th>Owner</th><th class="num">Size</th><th>Shared</th><th></th></tr></thead>
+  <tbody>
+  {% for s in shares %}{% with f=s.file %}
+  <tr>
+    <td><div class="fname"><span class="ft ft-{{ f.name|filekind }}">{{ f.name|ext }}</span>
+      <div><a href="{% url 'detail' f.id %}">{{ f.name }}</a><div class="sub">sha256 {{ f.sha256|short:10 }}</div></div></div></td>
+    <td><span class="who-name"><span class="avatar">{{ f.owner.username|first }}</span>{{ f.owner.username }}</span></td>
+    <td class="num">{{ f.size|filesizeformat }}</td>
+    <td class="nowrap muted">{{ s.created_at|date:"M j, Y" }}</td>
+    <td><div class="actions">
+      <a class="btn btn-sm" href="{% url 'download' f.id %}"><svg width="14" height="14"><use href="#i-down"/></svg>Download</a>
+      <a class="btn btn-sm icon-btn" href="{% url 'detail' f.id %}" title="Details"><svg width="14" height="14"><use href="#i-info"/></svg></a>
+    </div></td>
+  </tr>
+  {% endwith %}{% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty"><svg width="34" height="34"><use href="#i-users"/></svg><div>Nothing has been shared with you yet.</div></div>
+{% endif %}
+</div>
+{% endblock %}

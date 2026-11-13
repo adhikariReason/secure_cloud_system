@@ -19,11 +19,10 @@ services:
     expose:
       - "8000"                    # reachable by nginx only, not published
     volumes:
-      - db_data:/app/data                     # SQLite database (users + file metadata)
-      - private_storage:/app/private_storage  # encrypted files
+      - db_data:/app/data                     # SQLite: users, key pairs (private keys encrypted), file metadata, audit log
+      - private_storage:/app/private_storage  # encrypted files only
     secrets:
-      - django_secret_key
-      - master_key
+      - django_secret_key         # signs sessions/CSRF; there is no file-encryption key on disk anymore
 
 volumes:
   db_data:
@@ -32,5 +31,3 @@ volumes:
 secrets:
   django_secret_key:
     file: /home/adhikarireason/securecloud-secrets/django_secret_key
-  master_key:
-    file: /home/adhikarireason/securecloud-secrets/master_key

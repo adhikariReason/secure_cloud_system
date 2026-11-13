@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Download rejected · Secure Cloud{% endblock %}
+{% block content %}
+<div class="panel panel-pad" style="max-width:640px;border-color:#efc6c3">
+  <div class="alert a-bad" style="margin-bottom:12px"><svg width="16" height="16"><use href="#i-alert"/></svg>
+    <div><b>Integrity check failed. Download rejected.</b></div></div>
+  <dl class="kv">
+    <dt>File</dt><dd>{{ record.name }}</dd>
+    <dt>Reason</dt><dd class="mono">{{ reason }}</dd>
+    <dt>Expected SHA-256</dt><dd class="mono">{{ record.sha256 }}</dd>
+  </dl>
+  <p class="small muted">The stored ciphertext no longer matches what {{ record.owner.username }} uploaded and signed. This attempt was recorded in the audit log.</p>
+  <a class="btn" href="{% url 'file_list' %}">Back to files</a>
+</div>
+{% endblock %}

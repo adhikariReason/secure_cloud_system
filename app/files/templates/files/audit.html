@@ -1,0 +1,41 @@
+{% extends "base.html" %}{% load sc %}
+{% block title %}Audit log · Secure Cloud{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Audit log</h1>
+  <div class="muted small">Activity on your account and your files. Each entry includes the hash of the one before it and is signed by the user who acted.</div></div></div>
+
+{% if chain_ok %}
+<div class="alert a-ok"><svg width="16" height="16"><use href="#i-shield"/></svg>
+  <div><b>Log intact.</b> All {{ total }} entries chain correctly and every signature matches its user's key.</div></div>
+{% else %}
+<div class="alert a-bad"><svg width="16" height="16"><use href="#i-alert"/></svg>
+  <div><b>Log has been altered.</b> The chain breaks at entry #{{ first_broken }}. Entries from that point can't be trusted.</div></div>
+{% endif %}
+
+<div class="panel table-wrap">
+<table>
+  <thead><tr><th class="num">#</th><th>Time</th><th>User</th><th>Action</th><th>File</th><th>Detail</th><th>Entry hash</th><th>Signature</th></tr></thead>
+  <tbody>
+  {% for e, st in rows %}
+  <tr>
+    <td class="num faint">{{ e.id }}</td>
+    <td class="nowrap muted">{{ e.timestamp|date:"M j · g:i:s A" }}</td>
+    <td class="nowrap">{{ e.username }}</td>
+    <td>{% if e.action == 'integrity_fail' or e.action == 'login_failed' %}<span class="badge b-bad">{{ e.action }}</span>
+        {% elif e.action == 'delete' or e.action == 'unshare' %}<span class="badge b-warn">{{ e.action }}</span>
+        {% elif e.action == 'upload' or e.action == 'share' %}<span class="badge b-blue">{{ e.action }}</span>
+        {% else %}<span class="badge">{{ e.action }}</span>{% endif %}</td>
+    <td>{{ e.file_name|default:"—" }}</td>
+    <td class="small muted">{{ e.detail|default:"" }}</td>
+    <td class="mono faint">{{ e.entry_hash|short:12 }}</td>
+    <td class="nowrap">{% if st == 'ok' %}<span class="badge b-ok"><svg width="12" height="12"><use href="#i-check"/></svg>valid</span>
+        {% elif st == 'unsigned' %}<span class="badge">unsigned</span>
+        {% else %}<span class="badge b-bad"><svg width="12" height="12"><use href="#i-x"/></svg>{{ st }}</span>{% endif %}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="8" class="empty">No activity yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

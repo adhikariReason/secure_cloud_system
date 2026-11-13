@@ -78,6 +78,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "data" / "db.sqlite3",
+        # IMMEDIATE: each transaction takes the write lock up front, so audit entries chain in order
+        "OPTIONS": {"transaction_mode": "IMMEDIATE"},
     }
 }
 
@@ -106,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Chicago"
 
 USE_I18N = True
 
@@ -120,7 +122,6 @@ STATIC_URL = "static/"
 
 # --- Secure Cloud settings ---
 PRIVATE_STORAGE_ROOT = BASE_DIR / "private_storage"   # encrypted files (never served by nginx)
-MASTER_KEY_FILE = "/run/secrets/master_key"           # AES-256 key, mounted by Docker Compose
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "file_list"
 LOGOUT_REDIRECT_URL = "login"
@@ -129,6 +130,7 @@ LOGOUT_REDIRECT_URL = "login"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 8 * 60 * 60   # 8 hours; the browser half of the key cookie expires at the same time
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

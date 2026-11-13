@@ -4,4 +4,4 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 CMD sh -c "python manage.py migrate --noinput && \
-           gunicorn securecloud.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 600"
+           gunicorn securecloud.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 600"

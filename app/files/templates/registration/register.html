@@ -1,5 +1,19 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Register</h2>
-<form method="post">{% csrf_token %}{{ form.as_p }}<button>Create account</button></form>
+{% block title %}Create account · Secure Cloud{% endblock %}
+{% block body %}
+<div class="auth"><div class="auth-box">
+  <div class="auth-brand"><span class="mark"><svg width="14" height="14" style="color:#fff"><use href="#i-lock"/></svg></span>Secure Cloud</div>
+  <div class="panel panel-pad">
+    <h2 style="font-size:16px">Create account</h2>
+    <form method="post">{% csrf_token %}
+      {% include "fields.html" with show_help=True %}
+      <button class="btn btn-primary" style="width:100%;justify-content:center;height:36px">Create account</button>
+    </form>
+    <div class="alert a-info small" style="margin:14px 0 0">
+      <svg width="16" height="16"><use href="#i-info"/></svg>
+      <div>An RSA key pair is generated for you. The private key is encrypted with your password, so <b>a forgotten password cannot be recovered</b>, and neither can your files.</div>
+    </div>
+  </div>
+  <div class="auth-foot">Already registered? <a href="{% url 'login' %}">Sign in</a></div>
+</div></div>
 {% endblock %}

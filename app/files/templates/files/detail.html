@@ -1,0 +1,66 @@
+{% extends "base.html" %}{% load sc %}
+{% block title %}{{ record.name }} · Secure Cloud{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <div class="crumb"><a href="{% if is_owner %}{% url 'file_list' %}{% else %}{% url 'shared_list' %}{% endif %}">{% if is_owner %}My files{% else %}Shared with me{% endif %}</a> /</div>
+    <div class="fname"><span class="ft ft-{{ record.name|filekind }}">{{ record.name|ext }}</span>
+      <div><h1>{{ record.name }}</h1><div class="muted small">{{ record.size|filesizeformat }} · uploaded {{ record.uploaded_at|date:"M j, Y · g:i A" }} by {{ record.owner.username }}</div></div></div>
+  </div>
+  <div class="actions">
+    <form method="post" action="{% url 'verify' record.id %}">{% csrf_token %}<button class="btn"><svg width="15" height="15"><use href="#i-shield"/></svg>Verify integrity</button></form>
+    <a class="btn btn-primary" href="{% url 'download' record.id %}"><svg width="15" height="15"><use href="#i-down"/></svg>Download</a>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="panel panel-pad">
+    <h2>Encryption and signature</h2>
+    <dl class="kv">
+      <dt>File ID</dt><dd class="mono">{{ record.id }}</dd>
+      <dt>Stored as</dt><dd class="mono">private_storage/{{ record.id }}.enc</dd>
+      <dt>Cipher</dt><dd>AES-256-GCM, random key for this file only</dd>
+      <dt>Nonce</dt><dd class="mono">{{ record.nonce|hexbytes }}</dd>
+      <dt>File key</dt><dd>Encrypted with {% if is_owner %}your{% else %}the owner's{% endif %} public key (RSA-OAEP, {{ wrapped_len }} bytes){% if not is_owner %}; your own copy is encrypted with your public key{% endif %}</dd>
+      <dt>SHA-256</dt><dd class="mono">{{ record.sha256 }}</dd>
+      <dt>Signature</dt><dd><span class="badge b-ok"><svg width="12" height="12"><use href="#i-check"/></svg>RSA-PSS · {{ record.owner.username }}</span>
+        <div class="small faint mono" style="margin-top:4px">key {{ owner_fp }} · {{ sig_len }} bytes</div></dd>
+    </dl>
+    <p class="small muted" style="margin:12px 0 0">Every download decrypts the file, recomputes the SHA-256 and checks {{ record.owner.username }}'s signature. If anything fails, the download is rejected.</p>
+  </div>
+
+  <div>
+  {% if is_owner %}
+    <div class="panel panel-pad" style="margin-bottom:16px">
+      <h2>Sharing</h2>
+      <form method="post" action="{% url 'share' record.id %}" class="inline-form">{% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required autocomplete="off">
+        <button class="btn btn-primary"><svg width="14" height="14"><use href="#i-share"/></svg>Share</button>
+      </form>
+      <p class="small faint" style="margin:8px 0 0">The file key is re-encrypted with the recipient's public key. Nobody else can open it.</p>
+      <div class="sep"></div>
+      {% if shares %}
+      <ul class="list-plain">
+        {% for s in shares %}
+        <li><span class="who-name"><span class="avatar">{{ s.recipient.username|first }}</span>{{ s.recipient.username }}<span class="small faint">since {{ s.created_at|date:"M j" }}</span></span>
+          <form method="post" action="{% url 'unshare' record.id s.id %}">{% csrf_token %}<button class="btn btn-sm btn-danger">Remove</button></form></li>
+        {% endfor %}
+      </ul>
+      {% else %}<div class="small muted">Only you can open this file.</div>{% endif %}
+    </div>
+    <div class="panel panel-pad">
+      <h2>Delete</h2>
+      <p class="small muted" style="margin:0 0 10px">Removes the encrypted file, its key and every share.</p>
+      <form method="post" action="{% url 'delete' record.id %}" onsubmit="return confirm('Delete {{ record.name|escapejs }}? This cannot be undone.')">{% csrf_token %}
+        <button class="btn btn-danger"><svg width="14" height="14"><use href="#i-trash"/></svg>Delete file</button></form>
+    </div>
+  {% else %}
+    <div class="panel panel-pad">
+      <h2>Shared with you</h2>
+      <div class="who-name"><span class="avatar">{{ record.owner.username|first }}</span>{{ record.owner.username }} owns this file.</div>
+      <p class="small muted" style="margin:10px 0 0">You can download it. Only the owner can share it further or delete it.</p>
+    </div>
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
